@@ -1,31 +1,7 @@
 #include "Message.hpp"
+#include "Helper.hpp"
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-
-#define CREATE_MOCK_CLASS(ClassName)                                                               \
-    class ClassName {                                                                              \
-    public:                                                                                        \
-        ClassName()                 = default;                                                     \
-        ClassName(const ClassName&) = default;                                                     \
-        ClassName(ClassName&& other) noexcept                                                      \
-            : mockGetKey(std::move(other.mockGetKey))                                              \
-            , mockGetPayload(std::move(other.mockGetPayload)) {}                                   \
-        ClassName& operator=(const ClassName& other) = default;                                    \
-        ClassName& operator=(ClassName&& other) noexcept {                                         \
-            if (this != &other) {                                                                  \
-                mockGetKey     = std::move(other.mockGetKey);                                      \
-                mockGetPayload = std::move(other.mockGetPayload);                                  \
-            }                                                                                      \
-            return *this;                                                                          \
-        }                                                                                          \
-                                                                                                   \
-        MOCK_METHOD(int, GetKey, (), (const));                                                     \
-        MOCK_METHOD(int, GetPayload, (), (const));                                                 \
-                                                                                                   \
-    private:                                                                                       \
-        std::unique_ptr<testing::internal::FunctionMocker<int()>> mockGetKey;                      \
-        std::unique_ptr<testing::internal::FunctionMocker<int()>> mockGetPayload;                  \
-    };
 
 CREATE_MOCK_CLASS(MockA)
 CREATE_MOCK_CLASS(MockB)
@@ -86,7 +62,7 @@ TEST(MessageTest, StressTestMockClass) {
     ASSERT_EQ(mockA.GetKey(), 42);
 }
 
-TEST(MessageTest, StressTestMockMethods) {
+TEST(MessageTest, StressTestRequestResponse) {
     using namespace SimpleMessageQueue;
 
     constexpr int numCalls = 1000;
@@ -96,7 +72,8 @@ TEST(MessageTest, StressTestMockMethods) {
     EXPECT_CALL(mockB, GetPayload()).WillRepeatedly(::testing::Return(99));
 
     for (int i = 0; i < numCalls; ++i) {
-        ASSERT_EQ(mockB.GetKey(), 42);
-        ASSERT_EQ(mockB.GetPayload(), 99);
+        Request<int, int> req(mockB);
+        ASSERT_EQ(req.GetKey(), 42);
+        ASSERT_EQ(Response<int>(mockB).GetPayload(), 99);
     }
 }
