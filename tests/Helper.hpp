@@ -1,3 +1,6 @@
+#ifndef SMQ_HELPER_HPP_
+#define SMQ_HELPER_HPP_
+
 #define CREATE_MOCK_CLASS(ClassName)                                                               \
     class ClassName {                                                                              \
     public:                                                                                        \
@@ -23,3 +26,4 @@
         std::unique_ptr<testing::internal::FunctionMocker<int()>> mockGetPayload;                  \
     };
 
+#endif // !SMQ_HELPER_HPP_

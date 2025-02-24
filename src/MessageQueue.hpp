@@ -1,3 +1,6 @@
+#ifndef SMQ_MESSAGEQUEUE_HPP_
+#define SMQ_MESSAGEQUEUE_HPP_
+
 #include "Message.hpp"
 #include <cassert>
 #include <future>
@@ -99,3 +102,5 @@ private:
 };
 
 } // namespace SimpleMessageQueue
+
+#endif // !SMQ_MESSAGEQUEUE_HPP_
